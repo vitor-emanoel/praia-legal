@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a8fb3">
+<title>Praia Fácil</title>
+<style>
+:root{--bg:#f2f8fb;--card:#fff;--tx:#12303a;--mu:#5b7680;--pr:#0a8fb3;--ac:#ff8a3d;--bd:#d7e6ec;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root{--bg:#0d1b21;--card:#14282f;--tx:#e8f3f6;--mu:#95b0b8;--bd:#244049;color-scheme:dark}}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--tx);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+#root{max-width:430px;margin:0 auto;min-height:100%;display:flex;flex-direction:column}
+.scr{flex:1;padding:20px;display:flex;flex-direction:column;gap:12px;animation:in .25s}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes pop{0%{transform:scale(.6);opacity:0}60%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+.center{align-items:center;justify-content:center;text-align:center}
+.splash{background:linear-gradient(180deg,#0a8fb3,#4cc9e0);color:#fff}.splash p{color:#e6f7fb}
+.logo{width:104px;height:104px;border-radius:30px;background:#fff;display:grid;place-items:center;font-size:56px;box-shadow:0 8px 24px #0003;animation:pop .6s}
+h1{margin:0;font-size:25px}h2{margin:0;font-size:18px}p{margin:0;color:var(--mu)}
+.fl{display:grid;gap:4px}.fl span{font-size:13px;color:var(--mu)}
+input[type=text],input[type=email],input[type=tel],input[type=password]{width:100%;padding:13px;border:1px solid var(--bd);border-radius:12px;background:var(--card);color:var(--tx);font-size:16px}
+input:focus{outline:2px solid var(--pr)}
+.btn{border:0;border-radius:12px;padding:14px;font-size:16px;font-weight:600;background:var(--pr);color:#fff;width:100%;cursor:pointer;text-decoration:none;text-align:center;display:inline-block}
+.btn:disabled{opacity:.6}.btn.o{background:transparent;color:var(--pr);border:1.5px solid var(--pr)}
+.btn.s{background:var(--card);color:var(--tx);border:1px solid var(--bd)}.btn.sm{width:auto;padding:8px 12px;font-size:14px}
+.link{background:none;border:0;color:var(--pr);cursor:pointer;font-size:14px;padding:4px;font-weight:600}
+.row{display:flex;gap:10px;align-items:center}.sb{justify-content:space-between}
+.pw{position:relative}.pw button{position:absolute;right:8px;bottom:6px;background:none;border:0;font-size:20px;cursor:pointer}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:16px;padding:14px}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.chip{flex:none;padding:8px 14px;border-radius:20px;border:1px solid var(--bd);background:var(--card);color:var(--tx);cursor:pointer}
+.chip.on{background:var(--pr);color:#fff;border-color:var(--pr)}
+.ad{border-radius:16px;padding:16px;color:#2b1600;display:flex;gap:12px;align-items:center;min-height:84px}
+.dots{display:flex;gap:6px;justify-content:center}.dots i{width:7px;height:7px;border-radius:9px;background:var(--bd)}.dots i.on{background:var(--pr)}
+.nav{display:flex;border-top:1px solid var(--bd);background:var(--card);position:sticky;bottom:0}
+.nav button{flex:1;background:none;border:0;padding:8px 0;color:var(--mu);font-size:12px;cursor:pointer;position:relative}
+.nav button.on{color:var(--pr);font-weight:700}.nav span{display:block;font-size:22px}
+.bdg{position:absolute;top:2px;left:55%;background:var(--ac);color:#fff;border-radius:9px;font-size:11px;padding:0 6px}
+.err{color:#d33;font-size:13px}.ok{color:#1a8f4a;font-size:14px}
+.ov{position:fixed;inset:0;background:#0008;display:grid;place-items:center;padding:20px;z-index:9}
+.msg{padding:10px 12px;border-radius:14px;max-width:85%}.me{align-self:flex-end;background:var(--pr);color:#fff}.bot{background:var(--card);border:1px solid var(--bd)}
+.av{width:46px;height:46px;border-radius:50%;background:var(--pr);color:#fff;display:grid;place-items:center;font-weight:700;font-size:18px}
+.hrs{display:flex;justify-content:space-between;text-align:center;font-size:13px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:14px}.src{font-size:12px;color:var(--mu)}
+</style></head><body><div id="root"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+<script type="text/babel">
+const {useState,useEffect}=React;
+/* ===== API ===== */
+const store=()=>{try{return localStorage.getItem("tok")||sessionStorage.getItem("tok")}catch(e){return null}};
+const setTok=(t,keep)=>{try{localStorage.removeItem("tok");sessionStorage.removeItem("tok");(keep?localStorage:sessionStorage).setItem("tok",t)}catch(e){}};
+const clearTok=()=>{try{localStorage.removeItem("tok");sessionStorage.removeItem("tok")}catch(e){}};
+async function api(p,o={}){const h={"Content-Type":"application/json"},t=store();if(t)h.Authorization="Bearer "+t;
+let r;try{r=await fetch("/api"+p,{method:o.method||"GET",headers:h,body:o.body?JSON.stringify(o.body):undefined})}catch(e){throw new Error("Sem conexão com o servidor.")}
+const j=await r.json().catch(()=>({}));if(!r.ok){const e=new Error(j.error||"Erro inesperado.");e.data=j;throw e}return j}
+const phoneMask=v=>{const d=v.replace(/\D/g,"").slice(0,11);return d.length>6?`(${d.slice(0,2)}) ${d.slice(2,d.length>10?7:6)}-${d.slice(d.length>10?7:6)}`:d.length>2?`(${d.slice(0,2)}) ${d.slice(2)}`:d};
+const lsGet=k=>{try{return localStorage.getItem(k)||""}catch(e){return ""}};
+
+/* ===== Clima real (Open-Meteo) ===== */
+const uvT=u=>u<3?"baixo":u<6?"moderado":u<8?"alto":u<11?"muito alto":"extremo";
+const wmo=c=>c===0?["☀️","Céu limpo"]:c<3?["⛅","Parcialmente nublado"]:c===3?["☁️","Nublado"]:c<50?["🌫️","Neblina"]:c<70?["🌦️","Garoa ou chuva"]:c<95?["🌧️","Pancadas de chuva"]:["⛈️","Trovoadas"];
+let W=null;
+async function loadWeather(lat,lon){try{
+const u=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m&hourly=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max,uv_index_max,sunset&timezone=auto&forecast_days=1`;
+const j=await (await fetch(u)).json(),c=j.current,d=j.daily,[ic,tx]=wmo(c.weather_code);
+return {temp:Math.round(c.temperature_2m),feels:Math.round(c.apparent_temperature),desc:tx,icon:ic,rain:d.precipitation_probability_max[0],uv:Math.round(d.uv_index_max[0]),wind:Math.round(c.wind_speed_10m),hum:c.relative_humidity_2m,hi:Math.round(d.temperature_2m_max[0]),lo:Math.round(d.temperature_2m_min[0]),sun:d.sunset[0].slice(11,16).replace(":","h"),hrs:[9,12,15,17].map(h=>[h+"h",Math.round(j.hourly.temperature_2m[h])+"°",wmo(j.hourly.weather_code[h])[0]])}}catch(e){return null}}
+
+const CATS=[["Todos","🌊"],["Comida","🍤"],["Lojas","🛍️"],["Passeios","⛵"],["Esportes","🏄"]];
+const IC={Comida:"🍤",Lojas:"🛍️",Passeios:"⛵",Esportes:"🏄"};
+const fmtD=d=>d==null?"":d<1000?d+" m":(d/1000).toFixed(1).replace(".",",")+" km";
+const BG=["linear-gradient(120deg,#ffb36b,#ffd89b)","linear-gradient(120deg,#7fd8ee,#b9ecf7)","linear-gradient(120deg,#ffa7a7,#ffd0c2)"];
+let CITY="Recife";
+const mapUrl=p=>p.src==="google"&&p.url?p.url:"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(p.n+" "+(p.a||"")+" "+CITY);
+
+/* ===== Componentes ===== */
+const Field=({l,...p})=><label className="fl"><span>{l}</span><input {...p}/></label>;
+function Pass({l,value,onChange}){const[s,setS]=useState(false);
+return <label className="fl pw"><span>{l}</span><input type={s?"text":"password"} value={value} onChange={onChange} placeholder="••••••••"/><button type="button" aria-label="Ver senha" onClick={()=>setS(!s)}>{s?"🙈":"👁️"}</button></label>}
+function Terms({close}){return <div className="ov" onClick={close}><div className="card" style={{maxWidth:360,maxHeight:"80vh",overflow:"auto",display:"grid",gap:10}} onClick={e=>e.stopPropagation()}><h2>Termos de Uso</h2><p>Ao criar sua conta você concorda em informar dados verdadeiros, usar o app de forma responsável e receber avisos sobre seus pedidos. Seus dados são tratados conforme a LGPD. (Substitua por seus termos reais antes de publicar.)</p><button className="btn" onClick={close}>Entendi</button></div></div>}
+const Social=({verb})=><div style={{display:"grid",gap:8}}>
+<a className="btn s" href="/auth/google">🔵 {verb} com Google</a>
+<a className="btn s" href="/auth/facebook">📘 {verb} com Facebook</a></div>;
+
+function DemoProvider({provider,onContinue,onBack,busy,error}) {
+  const google=provider==="google";
+  const brand=google?"Google":"Facebook";
+  return <div className="scr center">
+    <div className="card" style={{width:"100%",maxWidth:390,display:"grid",gap:14,padding:22}}>
+      <div style={{fontSize:34}}>{google?"🌐":"🔵"}</div>
+      <h1 style={{margin:0}}>Continuar com {brand}</h1>
+      <p style={{fontSize:14}}>Simulação de autenticação para apresentação do projeto Praia Fácil.</p>
+      <div className="card" style={{background:"#f4f7fb",color:"#172033",textAlign:"left"}}>
+        <b>Conta de demonstração</b>
+        <p>teste01@gmail.com</p>
+        <p style={{fontSize:12}}>Esta tela é fictícia e local. Nenhuma conta Google ou Facebook está sendo acessada.</p>
+      </div>
+      {error&&<div className="err">{error}</div>}
+      <button className="btn" disabled={busy} onClick={onContinue}>{busy?"Conectando…":`Continuar como teste01@gmail.com`}</button>
+      <button className="link" onClick={onBack}>Cancelar e voltar</button>
+      <p style={{fontSize:11,color:"#64748b"}}>Modo demonstração — não é a página oficial do {brand}.</p>
+    </div>
+  </div>;
+}
+
+function Splash(){return <div className="scr center splash"><div className="logo">🏖️</div><h1>Praia Fácil</h1><p>Seu guia de praia</p></div>}
+function Welcome({go}){const h=new Date().getHours();const s=h<12?"Bom dia":h<18?"Boa tarde":"Boa noite";
+return <div className="scr center"><div className="logo" style={{animation:"none"}}>🏖️</div><h1>Boas-vindas!</h1><p style={{fontSize:18}}>{s}! Comércio, passeios e o clima da praia em um só lugar.</p>
+<div style={{width:"100%",display:"grid",gap:10,marginTop:24}}><button className="btn" onClick={()=>go("signup")}>Novo cadastro</button><button className="btn o" onClick={()=>go("login")}>Sou cliente</button></div></div>}
+
+function Signup({go,onAuth,setNote,demoMode}){const[f,setF]=useState({name:"",email:"",phone:"",pass:""});const[ok,setOk]=useState(false);const[err,setErr]=useState("");const[terms,setTerms]=useState(false);const[busy,setBusy]=useState(false);
+const set=k=>e=>setF({...f,[k]:k==="phone"?phoneMask(e.target.value):e.target.value});
+const send=async()=>{setErr("");if(!ok)return setErr("Você precisa concordar com os Termos de Uso.");setBusy(true);
+try{onAuth(await api("/signup",{method:"POST",body:{...f,terms:true}}),true)}catch(e){if(e.data&&e.data.exists){setNote(e.message);go("login")}else setErr(e.message);setBusy(false)}};
+return <div className="scr"><h1>Criar conta</h1>
+<Field l="Nome" type="text" value={f.name} onChange={set("name")}/>
+<Field l="E-mail" type="email" value={f.email} onChange={set("email")}/>
+<Field l="Telefone" type="tel" value={f.phone} onChange={set("phone")}/>
+<Pass l={demoMode?"Senha (mínimo 7 caracteres no modo demonstração)":"Senha (mínimo 8 caracteres)"} value={f.pass} onChange={set("pass")}/>
+<label className="row"><input type="checkbox" checked={ok} onChange={e=>setOk(e.target.checked)}/><span>Concordo com os <button type="button" className="link" onClick={()=>setTerms(true)}>Termos de Uso</button></span></label>
+{err&&<div className="err">{err}</div>}
+<button className="btn" disabled={busy} onClick={send}>{busy?"Registrando…":"Registrar"}</button>
+<p style={{textAlign:"center"}}>ou</p><Social verb="Registrar"/>
+<button className="link" onClick={()=>go("login")}>Já tenho conta? Fazer login</button>
+{terms&&<Terms close={()=>setTerms(false)}/>}</div>}
+
+function Login({go,onAuth,note,blank,demoMode}){const[email,setE]=useState(blank?"":lsGet("savedEmail"));const[pass,setP]=useState("");const[keep,setK]=useState(!blank&&!!lsGet("savedEmail"));const[err,setErr]=useState("");const[busy,setBusy]=useState(false);
+const send=async()=>{setErr("");setBusy(true);try{const r=await api("/login",{method:"POST",body:{email,pass}});try{keep?localStorage.setItem("savedEmail",email.trim().toLowerCase()):localStorage.removeItem("savedEmail")}catch(e){}onAuth(r,keep)}catch(e){setErr(e.message);setBusy(false)}};
+return <div className="scr"><h1>Login</h1>{note&&<div className="card ok">{note}</div>}
+{demoMode&&<div className="card" style={{fontSize:13}}><b>Conta de demonstração</b><br/>E-mail: teste01@gmail.com<br/>Senha: teste01<br/><span style={{color:"#64748b"}}>Use para testar o login local ou os botões Google/Facebook simulados.</span></div>}
+<Field l="E-mail" type="email" value={email} onChange={e=>setE(e.target.value)}/>
+<Pass l="Senha" value={pass} onChange={e=>setP(e.target.value)}/>
+<div className="row sb"><label className="row"><input type="checkbox" checked={keep} onChange={e=>setK(e.target.checked)}/>Salvar login</label><button className="link" onClick={()=>go("forgot")}>Esqueceu sua senha?</button></div>
+{err&&<div className="err">{err}</div>}
+<button className="btn" disabled={busy} onClick={send}>{busy?"Entrando…":"Entrar"}</button>
+<p style={{textAlign:"center"}}>ou</p><Social verb="Entrar"/>
+<button className="link" onClick={()=>go("signup")}>Não tenho conta? Novo cadastro</button></div>}
+
+function Forgot({go}){const[e,setE]=useState("");const[res,setRes]=useState(null);const[err,setErr]=useState("");
+const send=async()=>{setErr("");try{setRes(await api("/forgot",{method:"POST",body:{email:e}}))}catch(x){setErr(x.message)}};
+return <div className="scr"><h1>Esqueceu sua senha?</h1><p>Informe seu e-mail para receber o link de redefinição.</p>
+<Field l="E-mail" type="email" value={e} onChange={x=>setE(x.target.value)}/>{err&&<div className="err">{err}</div>}
+{res&&<div className="card ok">Se o e-mail estiver cadastrado, o link de redefinição foi gerado.{res.devLink&&<div style={{marginTop:8,wordBreak:"break-all"}}><b>Modo desenvolvimento:</b> <a href={res.devLink}>abrir link</a></div>}</div>}
+<button className="btn" onClick={send}>Enviar link</button><button className="link" onClick={()=>go("login")}>Voltar ao login</button></div>}
+
+function Reset({token,go,setNote}){const[p,setP]=useState("");const[p2,setP2]=useState("");const[err,setErr]=useState("");
+const send=async()=>{if(p!==p2)return setErr("As senhas não conferem.");try{await api("/reset",{method:"POST",body:{token,pass:p}});setNote("Senha redefinida. Faça login.");go("login")}catch(e){setErr(e.message)}};
+return <div className="scr"><h1>Nova senha</h1><Pass l="Nova senha (mínimo 8 caracteres)" value={p} onChange={e=>setP(e.target.value)}/><Pass l="Confirmar nova senha" value={p2} onChange={e=>setP2(e.target.value)}/>{err&&<div className="err">{err}</div>}<button className="btn" onClick={send}>Redefinir senha</button></div>}
+
+function WeatherCard({full,onClick}){if(!W)return <div className="card"><p>Clima indisponível no momento (sem acesso à Open-Meteo).</p></div>;
+return <div className="card" onClick={onClick} style={{cursor:onClick?"pointer":"default",display:"grid",gap:10}}>
+<div className="row sb"><div><h2>{W.icon} {W.temp}°C</h2><p>{W.desc} · sensação {W.feels}°</p></div>{onClick&&<span className="link">Assistente ›</span>}</div>
+<div className="grid2"><span>🌡️ Máx {W.hi}° · Mín {W.lo}°</span><span>🌧️ Chuva: {W.rain}%</span><span>☀️ UV: {W.uv} ({uvT(W.uv)})</span><span>💨 Vento: {W.wind} km/h</span><span>💧 Umidade: {W.hum}%</span>{full&&<span>🌅 Pôr do sol: {W.sun}</span>}</div>
+{full&&<div className="hrs">{W.hrs.map(h=><div key={h[0]}><p>{h[0]}</p><div style={{fontSize:22}}>{h[2]}</div><b>{h[1]}</b></div>)}</div>}
+<div className="src">Fonte: Open-Meteo, ao vivo</div></div>}
+
+function Item({p,add,has}){return <div className="card" style={{display:"grid",gap:8}}><div className="row"><span style={{fontSize:30}}>{IC[p.c]}</span><div><b>{p.n}</b><p>{p.c}{p.a&&" · "+p.a}{p.d!=null&&" · "+fmtD(p.d)}</p>{p.rating&&<p>⭐ {p.rating}{p.votes&&` (${p.votes})`}</p>}</div></div>
+<div className="row"><a className="btn sm o" href={mapUrl(p)} target="_blank" rel="noopener">📍 Ver no mapa</a><button className="btn sm" disabled={has} onClick={()=>add(p)}>{has?"✓ No pedido":"+ Pedido"}</button></div></div>}
+function Cats({cat,setCat}){return <div className="chips">{CATS.map(([c,i])=><button key={c} className={"chip"+(c===cat?" on":"")} onClick={()=>setCat(c)}>{i} {c}</button>)}</div>}
+const Status=({ps,reload})=>ps.s==="loading"?<div className="src">Carregando locais reais…</div>:ps.s==="error"?<div className="card"><div className="err">{ps.msg}</div><button className="link" onClick={reload}>Tentar novamente</button></div>:<div className="src">📍 {ps.n} locais reais perto de {ps.loc} · fonte: {ps.src}{ps.src==="OpenStreetMap"&&" (© colaboradores do OpenStreetMap)"}</div>;
+
+function Home({user,ps,reload,ads,add,cart,onLogout,go}){const[cat,setCat]=useState("Todos");const[ad,setAd]=useState(0);
+useEffect(()=>{const t=setInterval(()=>setAd(a=>a+1),3500);return()=>clearInterval(t)},[]);
+const f=ps.list.filter(i=>cat==="Todos"||i.c===cat);const A=ads.length?ads[ad%ads.length]:null;
+return <div className="scr">
+<div className="row sb"><div className="row"><div className="av">{(user.name||"?")[0].toUpperCase()}</div><div><p>Olá,</p><b style={{fontSize:20}}>{user.name}</b></div></div><button className="link" onClick={onLogout}>Sair ↪</button></div>
+<WeatherCard onClick={()=>go("assistant")}/>
+{A&&<><p style={{fontSize:12}}>PUBLICIDADE · COMÉRCIO DA ORLA</p>
+<div className="ad" style={{background:BG[ad%3]}}><span style={{fontSize:38}}>{IC[A.c]}</span><div><b>{A.n}</b><div style={{fontSize:14}}>{A.a}</div><a href={mapUrl(A)} target="_blank" rel="noopener" style={{fontSize:13,color:"#2b1600"}}>Ver no mapa ›</a></div></div>
+<div className="dots">{ads.map((_,i)=><i key={i} className={i===ad%ads.length?"on":""}/>)}</div></>}
+<h2>Categorias</h2><Cats cat={cat} setCat={setCat}/><Status ps={ps} reload={reload}/>
+<h2>Produtos</h2>{f.filter(i=>i.t==="Produto").slice(0,10).map(p=><Item key={p.id} p={p} add={add} has={!!cart[p.id]}/>)}
+<h2>Serviços</h2>{f.filter(i=>i.t==="Serviço").slice(0,10).map(p=><Item key={p.id} p={p} add={add} has={!!cart[p.id]}/>)}</div>}
+
+function Search({ps,reload,add,cart}){const[q,setQ]=useState("");const[cat,setCat]=useState("Todos");
+const f=ps.list.filter(i=>(cat==="Todos"||i.c===cat)&&i.n.toLowerCase().includes(q.toLowerCase()));
+return <div className="scr"><h1>Buscar</h1><input type="text" placeholder="🔍 Buscar lojas e quiosques" value={q} onChange={e=>setQ(e.target.value)}/><Cats cat={cat} setCat={setCat}/><Status ps={ps} reload={reload}/>
+{f.map(p=><Item key={p.id} p={p} add={add} has={!!cart[p.id]}/>)}{ps.s==="ok"&&!f.length&&<p>Nenhum resultado.</p>}</div>}
+
+function Orders({orders,rem}){return <div className="scr"><h1>Pedidos</h1>
+<div className="card"><p>Reúna aqui os locais que você quer visitar ou contatar. Pedidos de compra com pagamento dependem de integração com cada loja.</p></div>
+{!orders.length&&<p>Nenhum item no pedido. Use "+ Pedido" em Início ou Buscar.</p>}
+{orders.map(o=><div key={o.id} className="card row sb"><div><b>{o.n}</b><p>{o.a}</p></div><div className="row"><a className="btn sm o" href={o.url||mapUrl({n:o.n,a:o.a})} target="_blank" rel="noopener">📍</a><button className="btn sm s" onClick={()=>rem(o.id)}>Remover</button></div></div>)}</div>}
+
+function Profile({user,setUser,go}){const[f,setF]=useState({name:user.name||"",email:user.email||"",phone:user.phone||""});const[msg,setMsg]=useState("");const[err,setErr]=useState("");
+const set=k=>e=>setF({...f,[k]:k==="phone"?phoneMask(e.target.value):e.target.value});
+const save=async()=>{setMsg("");setErr("");try{const r=await api("/me",{method:"PUT",body:f});setUser(r.user);setMsg("Cadastro atualizado!")}catch(e){setErr(e.message)}};
+return <div className="scr"><div className="row"><div className="av" style={{width:64,height:64,fontSize:26}}>{(f.name||"?")[0].toUpperCase()}</div><div><h1>Meu perfil</h1><p>Altere seus dados pessoais</p></div></div>
+<Field l="Nome" type="text" value={f.name} onChange={set("name")}/><Field l="E-mail" type="email" value={f.email} onChange={set("email")}/><Field l="Telefone" type="tel" value={f.phone} onChange={set("phone")}/>
+{msg&&<div className="card ok">{msg}</div>}{err&&<div className="err">{err}</div>}
+<button className="btn" onClick={save}>Atualizar cadastro</button>
+<button className="btn o" onClick={()=>go("changepass")}>Redefinir senha</button>
+<button className="btn s" onClick={()=>go("assistant")}>🤖 Assistente virtual</button></div>}
+
+function ChangePass({user,go}){const[a,setA]=useState("");const[p,setP]=useState("");const[p2,setP2]=useState("");const[err,setErr]=useState("");const[ok,setOk]=useState(false);
+const send=async()=>{setErr("");if(p!==p2)return setErr("As senhas não conferem.");try{await api("/me/password",{method:"POST",body:{current:a,next:p}});setOk(true)}catch(e){setErr(e.message)}};
+return <div className="scr"><h1>Redefinir senha</h1>{user.hasPassword&&<Pass l="Senha atual" value={a} onChange={e=>setA(e.target.value)}/>}<Pass l="Nova senha (mínimo 8 caracteres)" value={p} onChange={e=>setP(e.target.value)}/><Pass l="Confirmar nova senha" value={p2} onChange={e=>setP2(e.target.value)}/>
+{err&&<div className="err">{err}</div>}{ok&&<div className="card ok">Senha alterada com sucesso!</div>}
+<button className="btn" onClick={send}>Salvar nova senha</button><button className="link" onClick={()=>go("app")}>Voltar ao perfil</button></div>}
+
+function Assistant({back}) {
+  const [messages,setMessages]=useState([{role:"assistant",content:"Olá! Sou o assistente do Praia Fácil. Posso conversar sobre vários assuntos, ajudar a encontrar restaurantes e quiosques em Boa Viagem e explicar os dados do clima disponíveis. O que você gostaria de saber?"}]);
+  const [text,setText]=useState("");
+  const [busy,setBusy]=useState(false);
+  const [error,setError]=useState("");
+  const send=async(value)=>{
+    const question=(value??text).trim();
+    if(!question||busy)return;
+    const next=[...messages,{role:"user",content:question}];
+    setMessages(next);setText("");setError("");setBusy(true);
+    try {
+      const weather=W?{temperature:W.temp,feelsLike:W.feels,description:W.desc,rainChance:W.rain,uvIndex:W.uv,windKmh:W.wind,humidity:W.hum,max:W.hi,min:W.lo,sunset:W.sun}:null;
+      const result=await api("/chat",{method:"POST",body:{message:question,history:next.slice(0,-1).slice(-12),weather}});
+      setMessages(current=>[...current,{role:"assistant",content:result.answer}]);
+    } catch(e) {
+      setError(e.message);
+      setMessages(current=>[...current,{role:"assistant",content:"Não consegui responder agora. Confira a configuração do assistente e tente novamente."}]);
+    } finally {setBusy(false);}
+  };
+  return <div className="scr">
+    <div className="row sb"><div><h1>🤖 Assistente Praia Fácil</h1><p style={{fontSize:12,color:"#64748b"}}>Perguntas gerais, turismo, restaurantes e clima</p></div><button className="link" onClick={back}>Voltar</button></div>
+    <WeatherCard full/>
+    <div className="chips">{["Quais restaurantes existem em Boa Viagem?","O que posso fazer na praia?","Explique o índice UV","Me dê dicas para visitar Recife"].map(q=><button key={q} className="chip" disabled={busy} onClick={()=>send(q)}>{q}</button>)}</div>
+    <div style={{display:"grid",gap:10,overflowY:"auto",flex:1,minHeight:160,padding:"4px 0"}}>
+      {messages.map((item,i)=><div key={i} className={"msg "+(item.role==="assistant"?"bot":"me")} style={{whiteSpace:"pre-wrap"}}>{item.content}</div>)}
+      {busy&&<div className="msg bot">Pensando…</div>}
+    </div>
+    {error&&<div className="err">{error}</div>}
+    <div className="row" style={{marginTop:"auto"}}>
+      <input type="text" placeholder="Faça qualquer pergunta…" value={text} onChange={e=>setText(e.target.value)} onKeyDown={e=>e.key==="Enter"&&send()} disabled={busy}/>
+      <button className="btn" style={{width:90}} onClick={()=>send()} disabled={busy||!text.trim()}>{busy?"...":"Enviar"}</button>
+    </div>
+    <p style={{fontSize:11,color:"#64748b"}}>As respostas de IA exigem uma chave de API configurada no servidor. Confirme informações importantes antes de agir.</p>
+  </div>;
+}
+
+function App(){const[s,setS]=useState("splash");const[user,setUser]=useState(null);const[tab,setTab]=useState("home");const[ask,setAsk]=useState(false);
+const[note,setNote]=useState("");const[blank,setBlank]=useState(false);const[demoProvider,setDemoProvider]=useState("");const[demoBusy,setDemoBusy]=useState(false);const[demoError,setDemoError]=useState("");const[orders,setOrders]=useState([]);const[,tick]=useState(0);const[rtok,setRtok]=useState("");
+const[cfg,setCfg]=useState(null);const[ps,setPs]=useState({s:"loading",list:[],n:0,src:"",loc:""});
+const loadPlaces=async c=>{setPs(p=>({...p,s:"loading"}));try{const r=await api(`/places?lat=${c.loc.lat}&lon=${c.loc.lon}&radius=${c.loc.radius}`);setPs({s:"ok",list:r.places,n:r.places.length,src:r.source,loc:c.loc.name})}catch(e){setPs({s:"error",list:[],n:0,src:"",loc:"",msg:e.message})}};
+const enter=async u=>{setUser(u);setTab("home");setNote("");setS("app");try{setOrders((await api("/orders")).orders)}catch(e){}};
+useEffect(()=>{(async()=>{
+const h=location.hash;let target="welcome",n="";
+if(h.startsWith("#token=")){setTok(h.slice(7),true)}
+else if(h.startsWith("#reset=")){setRtok(h.slice(7));target="reset"}
+else if(h.startsWith("#oauth_error=")){n=decodeURIComponent(h.slice(13));target="login"}
+else if(h.startsWith("#demo_provider=")){setDemoProvider(h.slice(15));target="demo-provider"}
+if(h)history.replaceState(null,"",location.pathname);
+let c=null;try{c=await api("/config");CITY=c.loc.name.split(",").pop().trim();setCfg(c)}catch(e){}
+let u=null;if(store()){try{u=(await api("/me")).user}catch(e){clearTok()}}
+await new Promise(r=>setTimeout(r,1800));
+if(c){loadWeather(c.loc.lat,c.loc.lon).then(w=>{W=w;tick(x=>x+1)})}
+if(u&&target==="welcome"){await enter(u);if(c)loadPlaces(c)}else{setNote(n);setS(target)}
+})()},[]);
+const continueDemoSocial=async()=>{setDemoBusy(true);setDemoError("");try{const r=await api("/demo-social",{method:"POST",body:{provider:demoProvider}});setTok(r.token,true);await enter(r.user);if(cfg)loadPlaces(cfg)}catch(e){setDemoError(e.message)}finally{setDemoBusy(false)}};
+const onAuth=async(r,keep)=>{setTok(r.token,keep);await enter(r.user);if(cfg&&ps.s!=="ok")loadPlaces(cfg)};
+const go=x=>{if(x!=="login")setNote("");setS(x)};
+const add=async p=>{const o={id:p.id,n:p.n,a:p.a,url:p.src==="google"?p.url:""};setOrders(l=>[o,...l]);try{await api("/orders",{method:"POST",body:o})}catch(e){}};
+const rem=async id=>{setOrders(o=>o.filter(x=>x.id!==id));try{await api("/orders/"+encodeURIComponent(id),{method:"DELETE"})}catch(e){}};
+const cart=Object.fromEntries(orders.map(o=>[o.id,1]));const n=orders.length;
+const food=ps.list.filter(p=>p.c==="Comida");const ads=(food.filter(p=>p.kiosk).length>=3?food.filter(p=>p.kiosk):food).slice(0,3);
+const logout=b=>{clearTok();setAsk(false);setUser(null);setOrders([]);setBlank(b);setS(b?"login":"welcome")};
+const inApp=["app","assistant","changepass"].includes(s);const reload=()=>cfg&&loadPlaces(cfg);
+return <>
+{s==="splash"&&<Splash/>}
+{s==="welcome"&&<Welcome go={go}/>}
+{s==="signup"&&<Signup go={go} onAuth={onAuth} setNote={setNote} demoMode={!!cfg?.demoMode}/>}
+{s==="login"&&<Login go={go} onAuth={onAuth} note={note} blank={blank} demoMode={!!cfg?.demoMode}/>}
+{s==="forgot"&&<Forgot go={go}/>}
+{s==="reset"&&<Reset token={rtok} go={go} setNote={setNote}/>}
+{s==="demo-provider"&&<DemoProvider provider={demoProvider} busy={demoBusy} error={demoError} onContinue={continueDemoSocial} onBack={()=>setS("login")}/>}
+{s==="assistant"&&<Assistant back={()=>setS("app")}/>}
+{s==="changepass"&&<ChangePass user={user} go={go}/>}
+{s==="app"&&(tab==="profile"?<Profile user={user} setUser={setUser} go={go}/>:tab==="orders"?<Orders orders={orders} rem={rem}/>:tab==="search"?<Search ps={ps} reload={reload} add={add} cart={cart}/>:<Home user={user} ps={ps} reload={reload} ads={ads} add={add} cart={cart} onLogout={()=>setAsk(true)} go={go}/>)}
+{inApp&&<div className="nav">{[["orders","🧾","Pedidos"],["search","🔍","Buscar"],["home","🏠","Início"],["profile","👤","Perfil"]].map(([k,i,l])=>
+<button key={k} className={tab===k&&s==="app"?"on":""} onClick={()=>{setTab(k);setS("app")}}><span>{i}</span>{l}{k==="orders"&&n>0&&<b className="bdg">{n}</b>}</button>)}</div>}
+{ask&&<div className="ov"><div className="card" style={{width:"100%",maxWidth:340,display:"grid",gap:10}}><h2>Deseja sair do app?</h2>
+<button className="btn" onClick={()=>logout(false)}>Sim</button>
+<button className="btn o" onClick={()=>logout(true)}>Entrar com outro perfil</button>
+<button className="link" onClick={()=>setAsk(false)}>Cancelar</button></div></div>}</>}
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script></body></html>
